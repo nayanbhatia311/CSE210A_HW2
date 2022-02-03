@@ -413,8 +413,123 @@ class Parser extends Object {
 		return node;
 	}
 
+	boolean_relation(){
+		core(){
+			token=this.current_token;
+			if(token.type===NOT){
+				this.eat(NOT);
+				left=this.boolean_comparision();
+				node=new Relation(left,token,null);
+			}
+			else{
+				left=this.boolean_comparision();
+				token=this.current_token;
 
+				if(token_type===AND){
+					this.eat(AND);
+					right=this.boolean_comparision();
+					node=Relation(left,token,right);
+				}
+				else if(token.type===OR){
+					this.eat(OR);
+					right=this.boolean_comparision();
+					node=new Relation(left,token,right);
+				}
+				else{
+					node=new Relation(left,null,null);
+				}
+			}
+			return node;
+		}
 
+		if(this.current_token.type===LPAREN){
+			this.eat(LPAREN);
+			node=core();
+			this.eat(RPAREN);
+		}
+		else{
+			node=core();
+		}
+
+		return node;
+	}
+
+	boolean_comparision(){
+		core(){
+			if(this.current_token.type===TRUE){
+				this.eat(TRUE);
+				node=new Comparision(True,null,null);
+			}
+			else if(this.current_token.type===FALSE){
+				this.eat(FALSE);
+				node=new Comparision(False,null,null);
+			}
+			else{
+				left=this.expr();
+				token=this.current_token;
+				if(token.type===EQUAL){
+					this.eat(EQUAL);
+				}
+				else if(token.type===LESSTHAN){
+					this.eat(LESSTHAN);
+				}
+				else if(token.type===GREATERTHAN){
+					this.eat(GREATERTHAN);
+				}
+				right=this.expr();
+				node= new Comparision(left,token,right);
+			}
+			return node;
+		}
+		if(this.current_token.type===LPAREN){
+			this.eat(LPAREN);
+			node=core();
+			this.eat(RPAREN);
+		}
+		else{
+			node=core();
+		}
+
+		return node;
+	}
+
+	statement_list(){
+		node=this.statement();
+
+		results=[];
+		results.push(node);
+
+		while(this.current_token.type===SEMI){
+			this.eat(SEMI);
+			results.push(this.statement());
+		}
+
+		if(this.current_token.type===ID){
+			this.error();
+		}
+
+		return results;
+	}
+	
+	statement(){
+		if(this.current_token.type===ID){
+			node=this.assignment_statement();
+		}
+		else if(this.current_token.type===IF){
+			node=this.if_compound();
+		}
+		else if(this.current_token.type===WHILE){
+			node=this.while_compound();
+		}
+		else if(this.current_token.type===SKIP){
+			this.eat(SKIP);
+			node=this.empty();
+		}
+		else{
+			node=this.empty();
+		}
+		return node;
+	}
 
 
 
