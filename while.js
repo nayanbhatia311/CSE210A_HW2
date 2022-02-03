@@ -104,7 +104,7 @@ class Lexer extends Object {
 	}
 
 	isalnum(character){
-	return (isalpha(character) || isdigit(character));
+	return (this.isalpha(character) || this.isdigit(character));
 	
 	}
 	integer(){
@@ -120,12 +120,84 @@ class Lexer extends Object {
 
 	_id(){
 		let result="";
-		while(this.current_char!=null && isalnum(this.current_char)){
+		while(this.current_char!=null && this.isalnum(this.current_char)){
 			result+=this.current_char;
 			this.advance();
 			token=ReservedKeywords.get(result,new Token(ID,result));
 		}
+		return token;
+	}
+
+	get_next_token(){
+	while(this.current_char!=null){
+		if(this.isWhiteSpace(this.current_char)){
+		
+			this.skip_whitespace();
+		}
+
+		if(this.isalpha(this.current_char)){
+			return this._id();	
+		}
+
+		if(this.isdigit(this.current_char)){
+			return new Token(INTEGER,this.integer());
+		}
+
+		if(this.current_char===":" && this.peek()==="="){
+			this.advance();
+			this.advance();
+			return new Token(ASSIGN,":=");
+		}
+
+		if(this.current_char===";"){
+		
+			this.advance();
+			return new Token(SEMI,";");
+		}
+
+		if(this.current_char==="+"){
+		
+			this.advance();
+			return new Token(PLUS,"+");
+		}
+
+		if(this.current_char==="-"){
+			this.advance();
+			return new Token(MINUS,"-")'
+		
+		}
+
+		if(this.current_char==="*"){
+			this.advance();
+			return new Token(MUL,"*")'
+		 }
+
+		 if(this.current_char==="/"){
+		 	this.advance();
+			return new Token(DIV,"/");
 	
+		 }
+
+		 if(this.current_char==="("){
+		 
+		 	this.advance();
+			return new Token(LPAREN,"(");
+		}
+
+		if(this.current_char===")"){
+		
+			this.advance();
+			return new Token(RPAREN,")");
+		}
+
+		if(this.current_char==="="){
+			this.advance();
+			return new Token(EQUAL,"=");	
+		} 
+
+
+
+	}
 	}
 
 
