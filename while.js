@@ -324,6 +324,101 @@ class Relation extends AST {
 	}
 }
 
+class Comparision extends AST {
+	constructor(left,op,right){
+		super(left,op,right);
+		this.left=left;
+		this.token=this.op=op;
+		this.right=right;
+	}
+}
+
+class Parser extends Object {
+	constructor(lexer){
+		super(lexer);
+		this.lexer=lexer;
+		this.current_token=this.lexer.get_next_token();
+	}
+	
+	error(){
+		throw "Invalid syntax";
+	}
+
+	eat(token_type){
+		if(this.current_token.type===token_type){
+			this.current_token=this.lexer.get_next_token();
+		}
+		else{
+			this.error();
+		}
+	}
+
+	program(){
+		node=this.compound_statement();
+		return node;
+	}
+
+	compound_statement(){
+		nodes=this.statement_list();
+		root=new Compound();
+		for(let i=0; i<nodes.length;i++){
+			root.children.push(nodes[i]);
+		}
+		return root;
+	}
+
+	while_compound(){
+		this.eat(WHILE);
+		bool=this.boolean_relation();
+		this.eat(DO);
+		if(this.current_token.type===LBRACE){
+			this.eat(LBRACE);
+			if_true=this.compound_statement();
+			this.eat(RBRACE);
+		}
+		else{
+			if_true=this.statement();
+		}
+
+		node=While(bool,if_true);
+
+		return node;
+	}
+
+	if_compound(){
+		this.eat(IF);
+		bool=this.boolean_relation();
+		this.eat(THEN);
+		if(this.current_token.type===LBRACE){
+			this.eat(LBRACE);
+			if_true=this.compound_statement();
+			this.eat(RBRACE);
+		}
+		else{
+			if_true=this.statement();
+		}
+		this.eat(ELSE);
+
+		if(this.current_token.type===LBRACE){
+			this.eat(LBRACE);
+			if_false=this.compound_statement();
+			this.eat(RBRACE);
+		}
+		else{
+			if_false=this.statement();
+		}
+
+		node=If(bool,if_true,if_false);
+
+		return node;
+	}
+
+
+
+
+
+
+}
 
 
 
