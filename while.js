@@ -263,12 +263,12 @@ class Num extends AST {
 class UnaryOp extends AST {
 
 	constructor(op,expr){
-		super(op,expr){
-			this.token=this.op=op;
-			this.expr=expr;
+		super(op,expr);
+		this.token=this.op=op;
+		this.expr=expr;
 		}	
 	}
-}
+
 
 class Compound extends AST {
 	constructor(){
@@ -327,7 +327,7 @@ class Relation extends AST {
 
 
 
-class Var extends AST{}
+//class Var extends AST{}
 const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
