@@ -239,9 +239,95 @@ class Lexer extends Object {
 
 class AST extends Object{
 
+}
+
+class BinOp extends AST {
+
+	constructor(left,op,right){
+		super(left,op,right);
+		this.left=left;
+		this.token=this.op=op;
+		this.right=right;
+	}
 } 
 
+class Num extends AST {
+	
+	constructor(token){
+		super(token);
+		this.token=token;
+		this.value=token.value;
+	}
+}
 
+class UnaryOp extends AST {
+
+	constructor(op,expr){
+		super(op,expr){
+			this.token=this.op=op;
+			this.expr=expr;
+		}	
+	}
+}
+
+class Compound extends AST {
+	constructor(){
+		this.children=[];
+	}
+}
+
+class Assign extends AST {
+	constructor(left,op,right){
+		super(left,op,right);
+		this.left=left;
+		this.token=this.op=op;
+		this.right=right;
+	}
+}
+
+class Var extends AST {
+	constructor(token){
+		super(token);
+		this.token=token;
+		this.value=token.value;
+	}
+}
+
+class NoOp extends AST{
+
+}
+
+class If extends AST {
+	constructor(bool,if_true,if_false){
+		super(bool,if_true,if_false);
+		this.bool=bool;
+		this.if_true=if_true;
+		this.if_false=if_false;
+	
+	}
+}
+
+class While extends AST {
+	constructor(bool,if_true){
+		super(bool,if_true);
+		this.bool=bool;
+		this.if_true=if_true;
+	}
+}
+
+class Relation extends AST {
+	constructor(left,op,right){
+		super(left,op,right);
+		this.left=left;
+		this.token=this.op=op;
+		this.right=right;
+	}
+}
+
+
+
+
+class Var extends AST{}
 const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
