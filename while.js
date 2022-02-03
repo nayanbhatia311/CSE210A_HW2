@@ -49,7 +49,7 @@ class Token{
           'skip': new Token('skip','skip')
 }
 
-const Lexer extends Object {
+class Lexer extends Object {
 
 	constructor(text){
 	super(text);
@@ -81,6 +81,49 @@ const Lexer extends Object {
 	skip_whitespace(){
 		while(this.current_char!=null && isWhiteSpace(this.current_char)){
 			this.advance();
+		}
+	
+	}
+	peek(){
+	
+		peek_pos=this.position+1;
+		if(peek_pos>this.text.length-1){
+			return null;
+		}
+		else{
+			return this.text[peek_pos];
+		}
+	}
+
+	isalpha(character) {
+	return (((character >= 'a') && (character <= 'z')) || ((character >= 'A') && (character <= 'Z')));
+	}
+
+	isdigit(character) {
+	return ((character >= '0') && (character <= '9'));
+	}
+
+	isalnum(character){
+	return (isalpha(character) || isdigit(character));
+	
+	}
+	integer(){
+		let result="";
+		while(this.current_char!=null && !isNaN(this.current_char)){
+		
+			result+=this.current_char;
+			this.advance();
+		}
+		return parseInt(result);
+	
+	}
+
+	_id(){
+		let result="";
+		while(this.current_char!=null && isalnum(this.current_char)){
+			result+=this.current_char;
+			this.advance();
+			token=ReservedKeywords.get(result,new Token(ID,result));
 		}
 	
 	}
