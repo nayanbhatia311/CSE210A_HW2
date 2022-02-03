@@ -163,13 +163,13 @@ class Lexer extends Object {
 
 		if(this.current_char==="-"){
 			this.advance();
-			return new Token(MINUS,"-")'
+			return new Token(MINUS,"-");
 		
 		}
 
 		if(this.current_char==="*"){
 			this.advance();
-			return new Token(MUL,"*")'
+			return new Token(MUL,"*");
 		 }
 
 		 if(this.current_char==="/"){
@@ -193,15 +193,53 @@ class Lexer extends Object {
 		if(this.current_char==="="){
 			this.advance();
 			return new Token(EQUAL,"=");	
+		}
+
+		if(this.current_char==="<"){
+			this.advance();
+			return new Token(LESSTHAN,"<");
 		} 
 
+		if(this.current_char===">"){
+			this.advance();
+			return new Token(GREATERTHAN,">");
+		}
 
+		if(this.current_char==="∧"){
+			this.advance();
+			return new Token(AND,"∧");
+		}
 
+		if(this.current_char==="V"){
+			this.advance();
+			return new Token(OR,"V");
+		}
+
+		if(this.current_char==="¬"){
+			this.advance();
+			return new Token(NOT,"¬");
+		}
+
+		if(this.current_char==="{"){
+			this.advance();
+			return new Token(LBRACE,"{");
+		}
+
+		if(this.current_char==="}"){
+			this.advance();
+	 		return new Token(RBRACE,"}");
+		}
+	this.error();
 	}
+	return new Token(EOF,null);
 	}
 
 
 }
+
+class AST extends Object{
+
+} 
 
 
 const readline = require('readline').createInterface({
@@ -212,6 +250,7 @@ const readline = require('readline').createInterface({
 
 try {
 readline.question(``, program => {
+  lexer= new Lexer(program);
   console.log(`${program}`)
   readline.close();
   
