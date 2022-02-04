@@ -277,6 +277,7 @@ class UnaryOp extends AST {
 
 class Compound extends AST {
 	constructor(){
+		super();
 		this.children=[];
 	}
 }
@@ -359,13 +360,13 @@ class Parser extends Object {
 	}
 
 	program(){
-		node=this.compound_statement();
+		let node=this.compound_statement();
 		return node;
 	}
 
 	compound_statement(){
-		nodes=this.statement_list();
-		root=new Compound();
+		let nodes=this.statement_list();
+		let root=new Compound();
 		for(let i=0; i<nodes.length;i++){
 			root.children.push(nodes[i]);
 		}
@@ -373,8 +374,9 @@ class Parser extends Object {
 	}
 
 	while_compound(){
+		let node;
 		this.eat(WHILE);
-		bool=this.boolean_relation();
+		let bool=this.boolean_relation();
 		this.eat(DO);
 		if(this.current_token.type===LBRACE){
 			this.eat(LBRACE);
@@ -391,6 +393,7 @@ class Parser extends Object {
 	}
 
 	if_compound(){
+		let node;
 		this.eat(IF);
 		bool=this.boolean_relation();
 		this.eat(THEN);
@@ -419,6 +422,7 @@ class Parser extends Object {
 	}
 
 	boolean_relation(){
+	let node;
 		function core(){
 			token=this.current_token;
 			if(token.type===NOT){
@@ -460,6 +464,7 @@ class Parser extends Object {
 	}
 
 	boolean_comparision(){
+		let node;
 		function core(){
 			if(this.current_token.type===TRUE){
 				this.eat(TRUE);
@@ -499,9 +504,9 @@ class Parser extends Object {
 	}
 
 	statement_list(){
-		node=this.statement();
+		let node=this.statement();
 
-		results=[];
+		let results=[];
 		results.push(node);
 
 		while(this.current_token.type===SEMI){
@@ -517,6 +522,7 @@ class Parser extends Object {
 	}
 	
 	statement(){
+		let node;
 		if(this.current_token.type===ID){
 			node=this.assignment_statement();
 		}
@@ -537,15 +543,16 @@ class Parser extends Object {
 	}
 	
 	assignment_statement(){
-		left=this.variable();
-		token=this.current_token;
+		let left=this.variable();
+		let token=this.current_token;
 		this.eat(ASSIGN);
-		right=this.expr();
-		node=new Assign(left,token,right);
+		let right=this.expr();
+		let node=new Assign(left,token,right);
 		return node;
 	}
 
 	variable(){
+		let node;
 		node=new Var(this.current_token);
 		this.eat(ID);
 		return node;
@@ -556,6 +563,7 @@ class Parser extends Object {
 	}
 
 	expr(){
+		let node;
 		node=this.term();
 		while(this.current_token.type=== PLUS || this.current_token.type===MINUS){
 			token=this.current_token;
@@ -571,6 +579,7 @@ class Parser extends Object {
 		return node;
 	}
 	term(){
+		let node;
 		node=this.factor();
 		while(this.current_token.type===MUL || this.current_token===DIV){
 			token=this.current_token;
@@ -589,7 +598,7 @@ class Parser extends Object {
 	}
 
 	factor(){
-		token=this.current_token;
+		let token=this.current_token;
 		if(token.type===PLUS){
 			this.eat(PLUS);
 			node=new UnaryOp(token,this.factor());
@@ -615,7 +624,7 @@ class Parser extends Object {
 		}
 	}
 	parse(){
-		node=this.program();
+		let node=this.program();
 		if(this.current_token.type!=EOF){
 			this.error();
 		}
@@ -625,11 +634,16 @@ class Parser extends Object {
 }
 
 class Interpreter extends Object{
-	let GlobalScope={};
 	constructor(parser){
 		super(parser);
+		let GlobalScope={};
 		this.parser=parser;
 	}
+	 get(object, key, default_value) {
+	 	let result = object[key];
+		return (typeof result !== "undefined") ? result : default_value;
+	}
+
 	visit(node){
 
 	if(node instanceof BinOp){
@@ -698,8 +712,81 @@ class Interpreter extends Object{
 		}
 	}
 
+	visit_Comparision(node){
+		if(node.op===null){
+			return node.left;
+		}
+		if(node.op.type===EQUAL){
+			return this.visit(node.left)===this.visit(node.right);
+		}
+		if(node.op.type===LESSTHAN){
+			return this.visit(node.left)<this.visit(node.right);
+		}
+		if(node.op.type===GREATERTHAN){
+			return this.visit(node.left)>this.visit(node.right);
+		}
+	}
+	
+	visit_BinOp(node){
+		if(node.op.type===PLUS){
+			return this.visit(node.left)+this.visit(node.right);
+		}
+		if(node.op.type===MINUS){
+			return this.visit(node.left)-this.visit(node.right);
+		}
+		if(node.op.type===MUL){
+			return this.visit(node.left)-this.visit(node.right);
+		}
+		if(node.op.type===DIV){
+			return this.visit(node.left)/this.visit(node.right);
+		}
+	}
 
+	visit_Num(node){
+		return node.value;
+	}
 
+	visit_UnaryOp(node){
+		let op=node.op.type;
+		if(op===PLUS){
+			return +this.visit(node.expr);
+		}
+		if(op===MINUS){
+			return -this.visit(node.expr);
+		}
+	}
+
+	visit_Compound(node){
+		for(let i=0;i<node.children.length;i++){
+			this.visit(children[i]);
+		}	
+	}
+
+	visit_Assign(node){
+		this.GlobalScope[node.left.value]=this.visit(node.right);	
+	}
+	visit_Var(node){
+		let var_name=node.value;
+		let value=get(GlobalScope,var_name,null);
+		if(value===null){
+			throw "Value error";
+		}
+		else{
+			return value;
+		}
+		
+	}
+	visit_NoOp(node){
+	
+	}
+
+	interpret(){
+		let tree=this.parser.parse();
+		if(tree===null){
+			return '';
+		}
+		return this.visit(tree);
+	}
 }
 
 
@@ -715,6 +802,8 @@ try {
 readline.question(``, program => {
   lexer= new Lexer(program);
   parser=new Parser(lexer);
+  interpreter = new Interpreter(parser);
+  result=interpreter.interpret();
   console.log(`${program}`)
   readline.close();
   
