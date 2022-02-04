@@ -624,6 +624,83 @@ class Parser extends Object {
 
 }
 
+class Interpreter extends Object{
+	let GlobalScope={};
+	constructor(parser){
+		super(parser);
+		this.parser=parser;
+	}
+	visit(node){
+
+	if(node instanceof BinOp){
+		return this.visit_BinOp(node);
+	}
+	if(node instanceof While){
+		return this.visit_While(node);
+	}
+	if(node instanceof If){
+		return this.visit_If(node);
+	}
+	if(node instanceof Relation){
+		return this.visit_Relation(node);
+	}
+	if(node instanceof Comparision){
+		return this.visit_Comparision(node);
+	}
+	if(node instanceof Num){
+		return this.visit_Num(node);
+	}
+	if(node instanceof UnaryOp){
+		return this.visit_UnaryOp(node);
+	}
+	if(node instanceof Compound){
+		return this.visit_Compound(node);
+	}
+	if(node instanceof Assign){
+		return this.visit_Assign(node);
+	}
+	if(node instanceof Var){
+		return this.visit_Var(node);
+	}
+	if(node instanceof NoOp){
+		return this.visit_NoOp(node);
+	}
+	}
+
+	visit_While(node){
+		while(this.visit(node.bool)){
+			this.visit(node.if_true);
+		}
+	}
+
+	visit_If(node){
+		bool=this.visit(node.bool);
+		if(bool===true){
+			this.visit(node.if_true);
+		}
+		if(bool===false){
+			this.visit(node.if_false);
+		}
+	}
+
+	visit_Relation(node){
+		if(node.op===null){
+			return this.visit(node.left);
+		}
+		if(node.op.type===AND){
+			return this.visit(node.left) && this.visit(node.right);
+		}
+		if(node.op.type===OR){
+			return this.visit(node.left) || this.visit(node.right);
+		}
+		if(node.op.type===NOT){
+			return !this.visit(node.left);
+		}
+	}
+
+
+
+}
 
 
 
