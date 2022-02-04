@@ -414,7 +414,7 @@ class Parser extends Object {
 	}
 
 	boolean_relation(){
-		core(){
+		function core(){
 			token=this.current_token;
 			if(token.type===NOT){
 				this.eat(NOT);
@@ -455,7 +455,7 @@ class Parser extends Object {
 	}
 
 	boolean_comparision(){
-		core(){
+		function core(){
 			if(this.current_token.type===TRUE){
 				this.eat(TRUE);
 				node=new Comparision(True,null,null);
@@ -530,8 +530,92 @@ class Parser extends Object {
 		}
 		return node;
 	}
+	
+	assignment_statement(){
+		left=this.variable();
+		token=this.current_token;
+		this.eat(ASSIGN);
+		right=this.expr();
+		node=new Assign(left,token,right);
+		return node;
+	}
 
+	variable(){
+		node=new Var(this.current_token);
+		this.eat(ID);
+		return node;
+	}
+	
+	empty(){
+		return new NoOp();
+	}
 
+	expr(){
+		node=this.term();
+		while(this.current_token.type=== PLUS || this.current_token.type===MINUS){
+			token=this.current_token;
+			if(token.type===PLUS){
+				this.eat(PLUS);
+			}
+			else if(token.type===MINUS){
+				this.eat(MINUS);
+			}
+
+			node= new BinOp(node,token,this.term());
+		}
+		return node;
+	}
+	term(){
+		node=this.factor();
+		while(this.current_token.type===MUL || this.current_token===DIV){
+			token=this.current_token;
+
+			if(token.type===MUL){
+				this.eat(MUL);
+			}
+			else if(token.type===DIV){
+				this.eat(DIV);
+			}
+			
+			node=new BinOp(node,token,this.factor());
+		}
+		return node;
+
+	}
+
+	factor(){
+		token=this.current_token;
+		if(token.type===PLUS){
+			this.eat(PLUS);
+			node=new UnaryOp(token,this.factor());
+			return node;
+		}
+		else if(token.type===MINUS){
+			this.eat(MINUS);
+			node=new UnaryOp(token,this.factor());
+		}
+		else if(token.type===INTEGER){
+			this.eat(INTEGER);
+			return new Num(token);
+		}
+		else if(token.type===LPAREN){
+			this.eat(LPAREN);
+			node=this.expr();
+			this.eat(RPAREN);
+			return node;	
+		}
+		else{
+			node=this.variable();
+			return node;
+		}
+	}
+	parse(){
+		node=this.program();
+		if(this.current_token.type!=EOF){
+			this.error();
+		}
+		return node;
+	}
 
 }
 
