@@ -64,7 +64,7 @@ class Lexer extends Object {
 	}
 	isWhiteSpace(character){
 		const whiteSpaceRegEx= /\s/;
-		return whiteSpaceRegEx.text(character);
+		return whiteSpaceRegEx.test(character);
 	
 	}
 	advance(){
@@ -117,13 +117,18 @@ class Lexer extends Object {
 		return parseInt(result);
 	
 	}
+	get(object, key, default_value) {
+	    	let result = object[key];
+	        return (typeof result !== "undefined") ? result : default_value;
+	}
 
 	_id(){
 		let result="";
+		let token="";
 		while(this.current_char!=null && this.isalnum(this.current_char)){
 			result+=this.current_char;
 			this.advance();
-			token=ReservedKeywords.get(result,new Token(ID,result));
+			token=this.get(ReservedKeywords,result,new Token(ID,result));
 		}
 		return token;
 	}
@@ -621,6 +626,7 @@ class Parser extends Object {
 
 
 
+
 //class Var extends AST{}
 const readline = require('readline').createInterface({
   input: process.stdin,
@@ -631,6 +637,7 @@ const readline = require('readline').createInterface({
 try {
 readline.question(``, program => {
   lexer= new Lexer(program);
+  parser=new Parser(lexer);
   console.log(`${program}`)
   readline.close();
   
