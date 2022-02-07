@@ -1,0 +1,107 @@
+commit 334df0cd0b7b9e9a35d774b796bc05bb656a3e03
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Sun Feb 6 23:13:58 2022 -0800
+
+    add custom test cases
+
+commit 321de2e6ca864161baf25729ca4efadbc260c20f
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Sun Feb 6 21:43:17 2022 -0800
+
+    fix more errors pertaining to multiplication
+
+commit 93f39bf50b7b359052fbf43acea899a53a662ca0
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Sun Feb 6 19:18:20 2022 -0800
+
+    add test.sh
+
+commit d31ecfcb1eb971a0ccf405f8bff5c22f4e8d02bd
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Sun Feb 6 19:08:48 2022 -0800
+
+    fix major bugs with lexer and parser
+
+commit abe4e754aa13c759c779dba029c5819e74202540
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 20:58:23 2022 -0800
+
+    add interpretor logic
+
+commit a36d26c0bfad8fc384b666b6bb79f8b5d9e292af
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 19:51:52 2022 -0800
+
+    add interpretor class and functions
+
+commit 9c2bf409107be1ca31f3f081dd122d7b1067f088
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 19:30:29 2022 -0800
+
+    fix bugs
+
+commit 026a5040f23d44f3a6221e059791d04150409138
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 19:06:19 2022 -0800
+
+    complete the parser class
+
+commit df8a8a31eb76ef23ae1f2dba71f2ff533fbef7cb
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 15:56:11 2022 -0800
+
+    add if, while ,comparision functionality to parser class
+
+commit 6df0ba1e6d1f2827f7c24a355eebf5212744f5c1
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 15:32:05 2022 -0800
+
+    add functions to parser class
+
+commit d05776a8da979ae028fa4bf65593d74f270d2bdb
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 10:38:17 2022 -0800
+
+    fix bugs in class AST
+
+commit 141b62535720eb62c70f3f083f52c58e90e1896d
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 10:35:28 2022 -0800
+
+    implement class AST
+
+commit 37bd16dd9f97b88d6bd7a65d4f5160ff7f6bbedd
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 01:48:29 2022 -0800
+
+    implement all the lexer class modules
+
+commit f6d18dee8c41082d74cf20b38e01123ccc90eb06
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 01:06:14 2022 -0800
+
+    add new token in get_newtoken function
+
+commit 46a1d758232b04aef8344c89b6333b1b6f88e327
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 00:45:25 2022 -0800
+
+    add functions to lexer
+
+commit 3c5492a27c69642205c741ea87c0a261d130af8e
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 00:31:50 2022 -0800
+
+    add Token and Lexer
+
+commit 5f53d9ccb26d6445b9d7d3bcfcec3a840f8e9af6
+Author: nayanbhatia311 <nayanbhatia.com@gmail.com>
+Date:   Thu Feb 3 00:06:17 2022 -0800
+
+    add boiler plate
+
+commit e9da3dc0b6102a1131b5c1a226fc26649aa6d1f2
+Author: Nayan Bhatia <41787379+nayanbhatia311@users.noreply.github.com>
+Date:   Sun Jan 30 10:54:52 2022 -0800
+
+    Initial commit

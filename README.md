@@ -1,2 +1,7 @@
 # CSE201A_HW2
-Implementing While 
+Run make
+nodejs while.js
+./test.sh
+
+Source: https://ruslanspivak.com/lsbasi-part7
+
