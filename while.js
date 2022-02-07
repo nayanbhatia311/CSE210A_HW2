@@ -25,6 +25,8 @@ const DO="do";
 const TRUE="true";
 const FALSE="false";
 const SKIP="skip";
+const LBRACKET='[';
+const RBRACKET=']';
 
 let GlobalScope = {}
 
@@ -53,14 +55,14 @@ class Lexer extends Object {
 		this.position = 0;
 		this.current_char = this.text[this.position];
 	}
-	error() {
+	customError() {
 		throw "Invalid syntax";
 	}
 	isWhiteSpace(character){
 		const whiteSpaceRegEx= /\s/;
 		return whiteSpaceRegEx.test(character);
 	}
-	advance(){
+	moveForward(){
 		this.position += 1;
 		if(this.position > this.text.length-1){
 			this.current_char = null;
@@ -70,10 +72,10 @@ class Lexer extends Object {
 	}
 	skipWhitespace(){
 		while(this.current_char != null && this.isWhiteSpace(this.current_char)){
-			this.advance();
+			this.moveForward();
 		}
 	}
-	peek(){
+	peekTopElement(){
 		let peek_pos = this.position+1;
 		if(peek_pos > this.text.length-1){
 			return null;
@@ -90,11 +92,11 @@ class Lexer extends Object {
 	isAlnum(character){
 		return (this.isAlpha(character) || this.isDigit(character));
 	}
-	integer(){
+	ifInteger(){
 		let result = "";
 		while(this.current_char!=null && this.isDigit(this.current_char)){
 			result+=this.current_char;
-			this.advance();
+			this.moveForward();
 		}
 		return parseInt(result);
 	}
@@ -110,7 +112,7 @@ class Lexer extends Object {
 		let token = "";
 		while(this.current_char!=null && this.isAlnum(this.current_char)){
 			result += this.current_char;
-			this.advance();
+			this.moveForward();
 		}
 		token = this.get(ReservedKeywords, result, new Token(ID, result));
 		return token;
@@ -124,74 +126,74 @@ class Lexer extends Object {
 				return this._id();	
 			}
 			if(this.isDigit(this.current_char)){
-				return new Token(INTEGER,this.integer());
+				return new Token(INTEGER,this.ifInteger());
 			}
-			if(this.current_char === ":" && this.peek() === "="){
-				this.advance();
-				this.advance();
+			if(this.current_char === ":" && this.peekTopElement() === "="){
+				this.moveForward();
+				this.moveForward();
 				return new Token(ASSIGN,":=");
 			}
 			if(this.current_char === ";"){
-				this.advance();
+				this.moveForward();
 				return new Token(SEMI,";");
 			}
 			if(this.current_char === "+"){
-				this.advance();
+				this.moveForward();
 				return new Token(PLUS,"+");
 			}
 			if(this.current_char === "-"){
-				this.advance();
+				this.moveForward();
 				return new Token(MINUS,"-");
 			}
 			if(this.current_char === "*"){
-				this.advance();
+				this.moveForward();
 				return new Token(MUL,"*");
 			}
 			if(this.current_char==="/"){
-				this.advance();
+				this.moveForward();
 				return new Token(DIV,"/");
 			}
 			if(this.current_char==="("){
-				this.advance();
+				this.moveForward();
 				return new Token(LPAREN,"(");
 			}
 			if(this.current_char===")"){
-				this.advance();
+				this.moveForward();
 				return new Token(RPAREN,")");
 			}
 			if(this.current_char==="="){
-				this.advance();
+				this.moveForward();
 				return new Token(EQUAL,"=");	
 			}
 			if(this.current_char==="<"){
-				this.advance();
+				this.moveForward();
 				return new Token(LESSTHAN,"<");
 			} 
 			if(this.current_char===">"){
-				this.advance();
+				this.moveForward();
 				return new Token(GREATERTHAN,">");
 			}
 			if(this.current_char==="∧"){
-				this.advance();
+				this.moveForward();
 				return new Token(AND,"∧");
 			}
 			if(this.current_char==="∨"){
-				this.advance();
+				this.moveForward();
 				return new Token(OR,"∨");
 			}
 			if(this.current_char==="¬"){
-				this.advance();
+				this.moveForward();
 				return new Token(NOT,"¬");
 			}
 			if(this.current_char==="{"){
-				this.advance();
+				this.moveForward();
 				return new Token(LBRACE,"{");
 			}
 			if(this.current_char==="}"){
-				this.advance();
+				this.moveForward();
 				return new Token(RBRACE,"}");
 			}
-			this.error();
+			this.customError();
 		}
 		return new Token(EOF,null);
 	}
@@ -201,12 +203,12 @@ class AST extends Object{
 
 }
 
-class BinOp extends AST {
-	constructor(left,op,right){
-		super(left,op,right);
-		this.left=left;
+class Arithmetic extends AST {
+	constructor(left_node,op,right_node){
+		super(left_node,op,right_node);
+		this.left_node=left_node;
 		this.token=this.op=op;
-		this.right=right;
+		this.right_node=right_node;
 	}
 } 
 
@@ -235,11 +237,11 @@ class Compound extends AST {
 }
 
 class Assign extends AST {
-	constructor(left,op,right){
-		super(left,op,right);
-		this.left=left;
+	constructor(left_node,op,right_node){
+		super(left_node,op,right_node);
+		this.left_node=left_node;
 		this.token=this.op=op;
-		this.right=right;
+		this.right_node=right_node;
 	}
 }
 
@@ -256,38 +258,38 @@ class NoOp extends AST{
 }
 
 class If extends AST {
-	constructor(bool,if_true,if_false){
-		super(bool,if_true,if_false);
+	constructor(bool,condition_if_true,condition_if_false){
+		super(bool,condition_if_true,condition_if_false);
 		this.bool=bool;
-		this.if_true=if_true;
-		this.if_false=if_false;
+		this.condition_if_true=condition_if_true;
+		this.condition_if_false=condition_if_false;
 	
 	}
 }
 
 class While extends AST {
-	constructor(bool,if_true){
-		super(bool,if_true);
+	constructor(bool,condition_if_true){
+		super(bool,condition_if_true);
 		this.bool=bool;
-		this.if_true=if_true;
+		this.condition_if_true=condition_if_true;
 	}
 }
 
 class Relation extends AST {
-	constructor(left,op,right){
-		super(left,op,right);
-		this.left=left;
+	constructor(left_node,op,right_node){
+		super(left_node,op,right_node);
+		this.left_node=left_node;
 		this.token=this.op=op;
-		this.right=right;
+		this.right_node=right_node;
 	}
 }
 
 class Comparision extends AST {
-	constructor(left,op,right){
-		super(left,op,right);
-		this.left=left;
+	constructor(left_node,op,right_node){
+		super(left_node,op,right_node);
+		this.left_node=left_node;
 		this.token=this.op=op;
-		this.right=right;
+		this.right_node=right_node;
 	}
 }
 
@@ -298,7 +300,7 @@ class Parser extends Object {
 		this.current_token = this.lexer.get_next_token();
 	}
 	
-	error(){
+	customError(){
 		throw "Invalid syntax";
 	}
 
@@ -307,91 +309,91 @@ class Parser extends Object {
 			this.current_token=this.lexer.get_next_token();
 		}
 		else{
-			this.error();
+			this.customError();
 		}
 	}
 
-	program(){
-		let node=this.compound_statement();
+	getOutput(){
+		let node=this.compound_getStatement();
 		return node;
 	}
-	compound_statement(){
-		let nodes = this.statement_list();
+	compound_getStatement(){
+		let nodes = this.get_all_list();
 		let root = new Compound();
 		for(let i = 0; i < nodes.length; i++){
 			root.children.push(nodes[i]);
 		}
 		return root;
 	}
-	while_compound(){
+	while_getStatement(){
 		let node;
-		let if_true;
+		let condition_if_true;
 		this.eat(WHILE);
-		let bool = this.boolean_relation();
+		let bool = this.getBooleanRelation();
 		this.eat(DO);
 		if(this.current_token.type === LBRACE){
 			this.eat(LBRACE);
-			if_true = this.compound_statement();
+			condition_if_true = this.compound_getStatement();
 			this.eat(RBRACE);
 		}
 		else{
-			if_true=this.statement();
+			condition_if_true=this.getStatement();
 		}
-		node = new While(bool,if_true);
+		node = new While(bool,condition_if_true);
 		return node;
 	}
-	if_compound(){
+	if_block(){
 		let node;
 		let bool;
-		let if_true;
-		let if_false;
+		let condition_if_true;
+		let condition_if_false;
 		this.eat(IF);
-		bool = this.boolean_relation();
+		bool = this.getBooleanRelation();
 		this.eat(THEN);
 		if(this.current_token.type === LBRACE){
 			this.eat(LBRACE);
-			if_true=this.compound_statement();
+			condition_if_true=this.compound_getStatement();
 			this.eat(RBRACE);
 		} else {
-			if_true=this.statement();
+			condition_if_true=this.getStatement();
 		}
 		this.eat(ELSE);
 		if(this.current_token.type === LBRACE){
 			this.eat(LBRACE);
-			if_false = this.compound_statement();
+			condition_if_false = this.compound_getStatement();
 			this.eat(RBRACE);
 		}
 		else{
-			if_false = this.statement();
+			condition_if_false = this.getStatement();
 		}
-		node = new If(bool,if_true,if_false);
+		node = new If(bool,condition_if_true,condition_if_false);
 		return node;
 	}
 
-	boolean_relation(){
+	getBooleanRelation(){
 		let node;
-		let left;
-		let right;
+		let left_node;
+		let right_node;
 		function core(obj){
 			let token = obj.current_token;
 			if(token.type === NOT){
 				obj.eat(NOT);
-				left = obj.boolean_comparision();
-				node = new Relation(left,token,null);
+				left_node = obj.compareBool();
+				node = new Relation(left_node,token,null);
 			} else {
-				left = obj.boolean_comparision();
+				left_node = obj.compareBool();
 				token = obj.current_token;
 				if(token.type === AND){
 					obj.eat(AND);
-					right = obj.boolean_comparision();
-					node = new Relation(left, token, right);
+					right_node = obj.compareBool();
+					node = new Relation(left_node, token, right_node);
 				} else if(token.type === OR){
 					obj.eat(OR);
-					right = obj.boolean_comparision();
-					node = new Relation(left,token,right);
+					right_node = obj.compareBool();
+					node = new Relation(left_node,token,right_node);
 				}
 				else{
-					node = new Relation(left, null, null);
+					node = new Relation(left_node, null, null);
 				}
 			}
 			return node;
@@ -406,10 +408,10 @@ class Parser extends Object {
 		return node;
 	}
 
-	boolean_comparision(){
+	compareBool(){
 		let node;
-		let left;
-		let right;
+		let left_node;
+		let right_node;
 		function core(obj){
 			let token = obj.current_token;
 			if(token.type === TRUE){
@@ -419,7 +421,7 @@ class Parser extends Object {
 				obj.eat(FALSE);
 				node = new Comparision(false, null, null);
 			} else {
-				left = obj.expr();
+				left_node = obj.evaluateExpression();
 				token = obj.current_token;
 				if(token.type === EQUAL){
 					obj.eat(EQUAL);
@@ -428,8 +430,8 @@ class Parser extends Object {
 				} else if(token.type === GREATERTHAN){
 					obj.eat(GREATERTHAN);
 				}
-				right = obj.expr();
-				node = new Comparision(left, token, right);
+				right_node = obj.evaluateExpression();
+				node = new Comparision(left_node, token, right_node);
 			}
 			return node;
 		}
@@ -443,61 +445,61 @@ class Parser extends Object {
 		return node;
 	}
 
-	statement_list(){
-		let node = this.statement();
-		let results=[];
-		results.push(node);
+	get_all_list(){
+		let node = this.getStatement();
+		let outputs=[];
+		outputs.push(node);
 		while(this.current_token.type === SEMI){
 			this.eat(SEMI);
-			results.push(this.statement());
+			outputs.push(this.getStatement());
 		}
 		if(this.current_token.type === ID){
-			this.error();
+			this.customError();
 		}
-		return results;
+		return outputs;
 	}
 	
-	statement(){
+	getStatement(){
 		let node;
 		if(this.current_token.type === ID){
-			node = this.assignment_statement();
+			node = this.assignment_block();
 		} else if(this.current_token.type === IF){
-			node = this.if_compound();
+			node = this.if_block();
 		} else if(this.current_token.type === WHILE){
-			node = this.while_compound();
+			node = this.while_getStatement();
 		} else if(this.current_token.type === SKIP){
 			this.eat(SKIP);
-			node=this.empty();
+			node=this.ifempty();
 		} else{
-			node=this.empty();
+			node=this.ifempty();
 		}
 		return node;
 	}
 	
-	assignment_statement(){
-		let left = this.variable();
+	assignment_block(){
+		let left_node = this.ifVariableOccured();
 		let token = this.current_token;
 		this.eat(ASSIGN);
-		let right = this.expr();
-		let node = new Assign(left, token, right);
+		let right_node = this.evaluateExpression();
+		let node = new Assign(left_node, token, right_node);
 		return node;
 	}
 
-	variable(){
+	ifVariableOccured(){
 		let node;
 		node = new Var(this.current_token);
 		this.eat(ID);
 		return node;
 	}
 	
-	empty(){
+	ifempty(){
 		return new NoOp();
 	}
 
-	expr(){
+	evaluateExpression(){
 		let node;
 		let token;
-		node = this.term();
+		node = this.ifMultiplicationDivision();
 		while(this.current_token.type === PLUS || this.current_token.type === MINUS){
 			token = this.current_token;
 			if(token.type === PLUS){
@@ -506,15 +508,15 @@ class Parser extends Object {
 			else if(token.type === MINUS){
 				this.eat(MINUS);
 			}
-			node = new BinOp(node, token, this.term());
+			node = new Arithmetic(node, token, this.ifMultiplicationDivision());
 		}
 		return node;
 	}
 
-	term(){
+	ifMultiplicationDivision(){
 		let node;
 		let token;
-		node = this.factor();
+		node = this.ifPlusMinusIntegerBracket();
 		while(this.current_token.type === MUL || this.current_token === DIV){
 			token = this.current_token;
 			if(token.type === MUL){
@@ -524,39 +526,39 @@ class Parser extends Object {
 				this.eat(DIV);
 			}
 			
-			node=new BinOp(node, token, this.factor());
+			node=new Arithmetic(node, token, this.ifPlusMinusIntegerBracket());
 		}
 		return node;
 	}
 
-	factor(){
+	ifPlusMinusIntegerBracket(){
 		let token = this.current_token;
 		let node;
 		if(token.type === PLUS){
 			this.eat(PLUS);
-			node = new UnaryOp(token, this.factor());
+			node = new UnaryOp(token, this.ifPlusMinusIntegerBracket());
 			return node;
 		} else if(token.type===MINUS){
 			this.eat(MINUS);
-			node = new UnaryOp(token,this.factor());
+			node = new UnaryOp(token,this.ifPlusMinusIntegerBracket());
 			return node;
 		} else if(token.type===INTEGER){
 			this.eat(INTEGER);
 			return new Num(token);
 		} else if(token.type===LPAREN){
 			this.eat(LPAREN);
-			node = this.expr();
+			node = this.evaluateExpression();
 			this.eat(RPAREN);
 			return node;	
 		} else{
-			node = this.variable();
+			node = this.ifVariableOccured();
 			return node;
 		}
 	}
-	parse(){
-		let node = this.program();
+	parseInput(){
+		let node = this.getOutput();
 		if(this.current_token.type != EOF){
-			this.error();
+			this.customError();
 		}
 		return node;
 	}
@@ -573,8 +575,8 @@ class Interpreter extends Object{
 	}
 
 	visit(node){
-		if(node instanceof BinOp){
-			return this.visit_BinOp(node);
+		if(node instanceof Arithmetic){
+			return this.visit_Arithmetic(node);
 		}
 		if(node instanceof While){
 			return this.visit_While(node);
@@ -610,7 +612,7 @@ class Interpreter extends Object{
 
 	visit_While(node){
 		while(this.visit(node.bool) == "true" || this.visit(node.bool) == true){
-			this.visit(node.if_true);
+			this.visit(node.condition_if_true);
 		}
 	}
 
@@ -618,40 +620,40 @@ class Interpreter extends Object{
 		let bool;
 		bool=this.visit(node.bool);
 		if(bool === 'true' || bool === true) {
-			this.visit(node.if_true);
+			this.visit(node.condition_if_true);
 		}
 		if(bool === 'false' || bool == false){
-			this.visit(node.if_false);
+			this.visit(node.condition_if_false);
 		}
 	}
 
 	visit_Relation(node){
 		if(node.op===null){
-			return this.visit(node.left);
+			return this.visit(node.left_node);
 		}
 		if(node.op.type===AND){
-			return this.visit(node.left) && this.visit(node.right);
+			return this.visit(node.left_node) && this.visit(node.right_node);
 		}
 		if(node.op.type===OR){
-			return this.visit(node.left) || this.visit(node.right);
+			return this.visit(node.left_node) || this.visit(node.right_node);
 		}
 		if(node.op.type===NOT){
-			return !this.visit(node.left);
+			return !this.visit(node.left_node);
 		}
 	}
 
 	visit_Comparision(node){
 		if(node.op===null){
-			return node.left;
+			return node.left_node;
 		}
 		if(node.op.type===EQUAL){
-			return this.visit(node.left)===this.visit(node.right);
+			return this.visit(node.left_node)===this.visit(node.right_node);
 		}
 		if(node.op.type===LESSTHAN){
-			return this.visit(node.left)<this.visit(node.right);
+			return this.visit(node.left_node)<this.visit(node.right_node);
 		}
 		if(node.op.type===GREATERTHAN){
-			return this.visit(node.left)>this.visit(node.right);
+			return this.visit(node.left_node)>this.visit(node.right_node);
 		}
 		if(node.op.type===TRUE){
 			return true;
@@ -661,18 +663,18 @@ class Interpreter extends Object{
 		}
 	}
 	
-	visit_BinOp(node){
+	visit_Arithmetic(node){
 		if(node.op.type===PLUS){
-			return this.visit(node.left)+this.visit(node.right);
+			return this.visit(node.left_node)+this.visit(node.right_node);
 		}
 		if(node.op.type===MINUS){
-			return this.visit(node.left)-this.visit(node.right);
+			return this.visit(node.left_node)-this.visit(node.right_node);
 		}
 		if(node.op.type===MUL){
-			return this.visit(node.left)*this.visit(node.right);
+			return this.visit(node.left_node)*this.visit(node.right_node);
 		}
 		if(node.op.type===DIV){
-			return this.visit(node.left)/this.visit(node.right);
+			return this.visit(node.left_node)/this.visit(node.right_node);
 		}
 	}
 
@@ -697,7 +699,7 @@ class Interpreter extends Object{
 	}
 
 	visit_Assign(node){
-		GlobalScope[node.left.value] = this.visit(node.right);	
+		GlobalScope[node.left_node.value] = this.visit(node.right_node);	
 	}
 	visit_Var(node){
 		let var_name = node.value;
@@ -709,7 +711,7 @@ class Interpreter extends Object{
 	}
 
 	interpret(){
-		let tree = this.parser.parse();
+		let tree = this.parser.parseInput();
 		if(tree === null){
 			return '';
 		}
@@ -732,7 +734,7 @@ try {
 		parser = new Parser(lexer);
 		interpreter = new Interpreter(parser);
 		result = interpreter.interpret();
-		states = []
+		states = [];
 		if ( Object.keys(GlobalScope).length == 0) {
 			console.log("{}");
 			return;
