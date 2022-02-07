@@ -92,7 +92,7 @@ class Lexer extends Object {
 	}
 	integer(){
 		let result = "";
-		while(this.current_char!=null && !isNaN(this.current_char)){
+		while(this.current_char!=null && this.isDigit(this.current_char)){
 			result+=this.current_char;
 			this.advance();
 		}
@@ -414,10 +414,10 @@ class Parser extends Object {
 			let token = obj.current_token;
 			if(token.type === TRUE){
 				obj.eat(TRUE);
-				node = new Comparision(TRUE, null, null);
+				node = new Comparision(true, null, null);
 			} else if(token.type === FALSE){
 				obj.eat(FALSE);
-				node = new Comparision(FALSE, null, null);
+				node = new Comparision(false, null, null);
 			} else {
 				left = obj.expr();
 				token = obj.current_token;
@@ -609,7 +609,7 @@ class Interpreter extends Object{
 	}
 
 	visit_While(node){
-		while(this.visit(node.bool) == 'true' || this.visit(node.bool) == true){
+		while(this.visit(node.bool) == "true" || this.visit(node.bool) == true){
 			this.visit(node.if_true);
 		}
 	}
@@ -669,7 +669,7 @@ class Interpreter extends Object{
 			return this.visit(node.left)-this.visit(node.right);
 		}
 		if(node.op.type===MUL){
-			return this.visit(node.left)-this.visit(node.right);
+			return this.visit(node.left)*this.visit(node.right);
 		}
 		if(node.op.type===DIV){
 			return this.visit(node.left)/this.visit(node.right);
