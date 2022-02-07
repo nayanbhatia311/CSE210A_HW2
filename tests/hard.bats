@@ -5,7 +5,7 @@ load harness
 }
 
 @test "hard-2" {
-  check 'if  1 - 1  < 0 then z8 := 09 else z3 := 90' '{z3 → 90}'
+  check 'if  (1 - 1)  < 0 then z8 := 09 else z3 := 90' '{z3 → 90}'
 }
 
 @test "hard-3" {
